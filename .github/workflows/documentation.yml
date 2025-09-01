@@ -1,0 +1,276 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+
+jobs:
+  lint-markdown:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+        
+      - name: Lint markdown files
+        run: markdownlint docs/ README.md CONTRIBUTING.md --ignore docs/community/ || true
+        
+  check-links:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check internal links
+        run: |
+          echo "Checking internal documentation links..."
+          
+          # Find all markdown files
+          find . -name "*.md" -not -path "./.git/*" | while read -r file; do
+            echo "Checking links in: $file"
+            
+            # Extract relative links and check if files exist
+            grep -o '\[.*\]([^)]*\.md[^)]*)' "$file" | \
+            sed 's/.*(\([^)]*\)).*/\1/' | while read -r link; do
+              # Convert relative path to absolute
+              if [[ "$link" =~ ^\./ ]]; then
+                link="${link#./}"
+                target_dir=$(dirname "$file")
+                full_path="$target_dir/$link"
+              elif [[ "$link" =~ ^/ ]]; then
+                full_path="${link#/}"
+              else
+                target_dir=$(dirname "$file")
+                full_path="$target_dir/$link"
+              fi
+              
+              # Normalize path
+              full_path=$(realpath -m "$full_path" 2>/dev/null || echo "$full_path")
+              
+              if [ ! -f "$full_path" ]; then
+                echo "::warning::Broken link in $file: $link -> $full_path"
+              fi
+            done
+          done
+          
+  validate-structure:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check documentation structure
+        run: |
+          # Check that required documentation exists
+          required_docs=(
+            "docs/hardware/assembly.md"
+            "docs/hardware/BOM.md"
+            "docs/software/architecture.md"
+            "docs/troubleshooting.md"
+          )
+          
+          missing_docs=()
+          for doc in "${required_docs[@]}"; do
+            if [ ! -f "$doc" ]; then
+              missing_docs+=("$doc")
+            fi
+          done
+          
+          if [ ${#missing_docs[@]} -ne 0 ]; then
+            echo "::error::Missing required documentation: ${missing_docs[*]}"
+            exit 1
+          fi
+          
+      - name: Check README structure
+        run: |
+          # Verify README has required sections
+          required_sections=(
+            "# Pixel Plant"
+            "## Features"
+            "## Quick Start"
+            "## Documentation"
+            "## Contributing"
+          )
+          
+          for section in "${required_sections[@]}"; do
+            if ! grep -q "$section" README.md; then
+              echo "::warning::README.md missing section: $section"
+            fi
+          done
+          
+  spell-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install aspell
+        run: sudo apt-get install aspell aspell-en
+        
+      - name: Create custom dictionary
+        run: |
+          # Create dictionary with technical terms
+          cat > .aspell.en.pws << EOF
+          personal_ws-1.1 en 50
+          Arduino
+          ESP32
+          WiFi
+          GPIO
+          PWM
+          I2C
+          SPI
+          UART
+          PCB
+          BOM
+          PIR
+          LED
+          RGB
+          IoT
+          API
+          JSON
+          TensorFlow
+          FireBeetle
+          Adafruit
+          DFRobot
+          Pimoroni
+          WS2812B
+          MAX98357A
+          PSRAM
+          microcontroller
+          firmware
+          breadboard
+          soldering
+          multimeter
+          FQBN
+          YAML
+          Markdown
+          GitHub
+          workflow
+          Becky
+          Chambers
+          Pixel
+          EOF
+          
+      - name: Spell check documentation
+        run: |
+          # Spell check markdown files
+          find docs/ -name "*.md" | while read -r file; do
+            echo "Checking spelling in: $file"
+            # Remove code blocks and technical formatting before spell check
+            sed -e '/```/,/```/d' -e 's/`[^`]*`//g' -e 's/\[.*\](.*)//' "$file" | \
+            aspell --personal=./.aspell.en.pws --lang=en_US list | sort -u | \
+            while read -r word; do
+              if [ -n "$word" ]; then
+                echo "::notice::Potential misspelling in $file: $word"
+              fi
+            done
+          done
+          
+  accessibility-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check image alt text
+        run: |
+          # Check that images have alt text
+          find docs/ README.md CONTRIBUTING.md -name "*.md" | while read -r file; do
+            # Find images without alt text
+            if grep -n '!\[\](' "$file"; then
+              echo "::warning::Images without alt text found in $file"
+              grep -n '!\[\](' "$file"
+            fi
+            
+            # Find images with generic alt text
+            if grep -n '!\[image\](' "$file"; then
+              echo "::warning::Images with generic alt text found in $file"
+              grep -n '!\[image\](' "$file"
+            fi
+          done
+          
+      - name: Check heading structure
+        run: |
+          # Check for proper heading hierarchy
+          find docs/ README.md CONTRIBUTING.md -name "*.md" | while read -r file; do
+            echo "Checking heading structure in: $file"
+            
+            awk '
+            /^#{1,6} / {
+              level = length($1)
+              if (NR == 1 && level != 1) {
+                print "::warning::File should start with h1: " FILENAME
+              }
+              if (prev_level > 0 && level > prev_level + 1) {
+                print "::warning::Heading level jump in " FILENAME " line " NR ": h" prev_level " to h" level
+              }
+              prev_level = level
+            }' "$file"
+          done
+          
+  generate-summary:
+    runs-on: ubuntu-latest
+    needs: [lint-markdown, check-links, validate-structure, spell-check, accessibility-check]
+    if: always()
+    
+    steps:
+      - name: Documentation Quality Summary
+        run: |
+          echo "## Documentation Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check job results
+          if [ "${{ needs.lint-markdown.result }}" = "success" ]; then
+            echo "✅ Markdown linting passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Markdown linting failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.check-links.result }}" = "success" ]; then
+            echo "✅ Link checking passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Link checking failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-structure.result }}" = "success" ]; then
+            echo "✅ Structure validation passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Structure validation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.spell-check.result }}" = "success" ]; then
+            echo "✅ Spell checking completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Spell checking failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.accessibility-check.result }}" = "success" ]; then
+            echo "✅ Accessibility checking passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Accessibility checking failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Thank you for contributing to caring documentation! 🌿" >> $GITHUB_STEP_SUMMARY

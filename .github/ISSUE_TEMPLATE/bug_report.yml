@@ -1,0 +1,133 @@
+name: Bug Report
+description: Report a bug to help us improve the Pixel Plant
+title: "[BUG] "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below to help us understand and fix the issue.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: "The Pixel Plant's LEDs flicker randomly when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened instead?
+      placeholder: "The LEDs should display a steady breathing pattern..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Power on the Pixel Plant
+        2. Sit at desk for 30 minutes
+        3. Notice LED flickering starts
+        4. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hardware-version
+    attributes:
+      label: Hardware Configuration
+      description: Which hardware setup are you using?
+      options:
+        - ESP32-S3 with Camera (DFRobot FireBeetle 2)
+        - Custom ESP32 setup
+        - Breadboard prototype
+        - PCB version
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: firmware-version
+    attributes:
+      label: Firmware Version
+      description: What version of the firmware are you running?
+      placeholder: "v1.0.2 or commit hash"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component-issue
+    attributes:
+      label: Which component seems affected?
+      description: Select the component where you're seeing the issue
+      options:
+        - LED Display/Animations
+        - Audio/Text-to-Speech
+        - Camera/Computer Vision
+        - PIR Sensor
+        - AI/Behavioral Recognition
+        - Power Management
+        - WiFi/Connectivity
+        - Overall System
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Tell us about your setup
+      placeholder: |
+        - Arduino IDE version: 2.0.4
+        - Operating System: Windows 11
+        - Power source: USB/Battery
+        - Additional sensors/modifications: None
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Serial Monitor Output
+      description: If applicable, paste relevant serial monitor output
+      render: shell
+      placeholder: |
+        Include any error messages, debug output, or unusual behavior from the serial monitor
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Anything else that might help us understand the issue?
+      placeholder: |
+        - Photos/videos of the issue
+        - When did it start happening?
+        - Does it happen consistently?
+        - Any recent changes to your setup?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you've done the following
+      options:
+        - label: I've searched existing issues to make sure this isn't a duplicate
+          required: true
+        - label: I've included enough information for someone else to reproduce the issue
+          required: true
+        - label: I've tested with the latest firmware version (if possible)
+          required: false

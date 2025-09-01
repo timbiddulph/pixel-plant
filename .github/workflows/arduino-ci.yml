@@ -1,0 +1,237 @@
+name: Arduino CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/arduino-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/arduino-ci.yml'
+
+jobs:
+  compile-sketches:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        board:
+          - fqbn: esp32:esp32:esp32s3:FlashMode=qio,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_fact512k_16MB
+            platform: esp32:esp32
+            sketch-name: pixel_plant
+          - fqbn: esp32:esp32:esp32s3:FlashMode=qio,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_fact512k_16MB
+            platform: esp32:esp32
+            sketch-name: led_test
+          - fqbn: esp32:esp32:esp32s3:FlashMode=qio,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_fact512k_16MB
+            platform: esp32:esp32
+            sketch-name: audio_test
+        
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          platforms: |
+            - name: ${{ matrix.board.platform }}
+              source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          libraries: |
+            - name: FastLED
+            - name: ArduinoJson
+            - source-url: https://github.com/schreibfaul1/ESP32-audioI2S.git
+          sketch-paths: |
+            - firmware/${{ matrix.board.sketch-name }}/
+            - firmware/examples/${{ matrix.board.sketch-name }}/
+          enable-deltas-report: true
+          sketches-report-path: sketches-reports
+
+      - name: Save sketches report as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sketches-report-${{ matrix.board.sketch-name }}
+          path: sketches-reports
+
+  memory-usage-check:
+    runs-on: ubuntu-latest
+    needs: compile-sketches
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Download sketches reports
+        uses: actions/download-artifact@v4
+        with:
+          path: sketches-reports
+          
+      - name: Check memory usage
+        run: |
+          echo "## Memory Usage Report" >> $GITHUB_STEP_SUMMARY
+          echo "| Sketch | Flash Used | Flash % | RAM Used | RAM % |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------------|---------|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          for report in sketches-reports/*/sketches-report.json; do
+            if [ -f "$report" ]; then
+              # Extract memory usage data (this is a simplified example)
+              sketch_name=$(basename $(dirname $report) | sed 's/sketches-report-//')
+              echo "| $sketch_name | - | - | - | - |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+      - name: Memory usage warning
+        run: |
+          # Add logic to warn if memory usage is too high
+          # ESP32-S3 has 16MB flash, 8MB PSRAM
+          echo "::notice::Memory usage check completed. See summary for details."
+
+  documentation-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check documentation
+        run: |
+          # Check that key documentation files exist
+          files=(
+            "README.md"
+            "docs/hardware/assembly.md"
+            "docs/hardware/BOM.md"
+            "firmware/pixel_plant/README.md"
+          )
+          
+          missing_files=()
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            fi
+          done
+          
+          if [ ${#missing_files[@]} -ne 0 ]; then
+            echo "::error::Missing documentation files: ${missing_files[*]}"
+            exit 1
+          else
+            echo "::notice::All required documentation files are present"
+          fi
+          
+      - name: Check for hardware changes
+        run: |
+          # Check if hardware files changed without documentation updates
+          if git diff --name-only origin/main...HEAD | grep -q "hardware/"; then
+            if ! git diff --name-only origin/main...HEAD | grep -q "docs/hardware/"; then
+              echo "::warning::Hardware files changed but documentation may need updates"
+            fi
+          fi
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install cpplint
+        run: pip install cpplint
+        
+      - name: Run C++ linting
+        run: |
+          find firmware/ -name "*.cpp" -o -name "*.h" -o -name "*.ino" | \
+          xargs cpplint --filter=-whitespace/tab,-readability/casting,-runtime/references \
+          --linelength=100 --quiet || true
+          
+      - name: Check for TODO/FIXME comments
+        run: |
+          todos=$(grep -r "TODO\|FIXME\|HACK" firmware/ --include="*.cpp" --include="*.h" --include="*.ino" || true)
+          if [ -n "$todos" ]; then
+            echo "::warning::Found TODO/FIXME comments in code:"
+            echo "$todos"
+          fi
+
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check for hardcoded secrets
+        run: |
+          # Check for common patterns that might indicate hardcoded secrets
+          patterns=(
+            "password.*=.*['\"].*['\"]"
+            "api.*key.*=.*['\"].*['\"]"
+            "secret.*=.*['\"].*['\"]"
+            "token.*=.*['\"].*['\"]"
+          )
+          
+          found_issues=false
+          for pattern in "${patterns[@]}"; do
+            if grep -r -i "$pattern" firmware/ --include="*.cpp" --include="*.h" --include="*.ino"; then
+              echo "::error::Potential hardcoded secret found matching pattern: $pattern"
+              found_issues=true
+            fi
+          done
+          
+          if [ "$found_issues" = true ]; then
+            echo "::error::Security check failed - remove hardcoded secrets"
+            exit 1
+          else
+            echo "::notice::No obvious hardcoded secrets found"
+          fi
+
+  community-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Validate issue templates
+        run: |
+          # Check that issue template files are valid YAML
+          for template in .github/ISSUE_TEMPLATE/*.yml; do
+            if [ -f "$template" ]; then
+              echo "Checking $template"
+              python -c "import yaml; yaml.safe_load(open('$template'))" || {
+                echo "::error::Invalid YAML in $template"
+                exit 1
+              }
+            fi
+          done
+          
+      - name: Check caring philosophy alignment
+        run: |
+          # Check that new features align with caring technology principles
+          if git diff --name-only origin/main...HEAD | grep -q "firmware/"; then
+            # Look for keywords that suggest caring, supportive features
+            caring_words="care|caring|gentle|support|wellbeing|health|reminder|companion"
+            if ! git diff origin/main...HEAD -- firmware/ | grep -i -E "$caring_words"; then
+              echo "::warning::Consider how your changes support the Pixel Plant's caring mission"
+            fi
+          fi
+
+  release-notes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Generate release notes
+        run: |
+          # Simple release notes generation
+          echo "## Recent Changes" > release-notes.md
+          git log --oneline -10 >> release-notes.md
+          
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md

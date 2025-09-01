@@ -1,0 +1,145 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the Pixel Plant
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Your ideas help make the Pixel Plant even more caring and useful.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: What feature would you like to see added?
+      placeholder: "I'd like the Pixel Plant to detect when I'm drinking water and celebrate with happy animations..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-solved
+    attributes:
+      label: Problem or Use Case
+      description: What problem does this feature solve? How would you use it?
+      placeholder: "This would help me stay motivated to drink enough water throughout the day..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature working?
+      placeholder: |
+        - Use computer vision to detect drinking motions
+        - Play celebratory LED animation when detected
+        - Track daily hydration goals
+        - Provide gentle reminders if no drinking detected for 2+ hours
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - AI/Behavioral Recognition
+        - Visual/LED Animations
+        - Audio/Voice Interaction
+        - Health & Wellness
+        - Customization/Personalization
+        - Hardware Integration
+        - Mobile/Web App
+        - Developer Tools
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority-level
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Nice to have
+        - Would improve my experience
+        - Important for my use case
+        - Critical for accessibility/health
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Implementation Complexity (if known)
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple (small code change)
+        - Medium (new functionality)
+        - Complex (major new system)
+        - Very Complex (requires hardware changes)
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative approaches?
+      placeholder: "Could also be implemented as an optional plugin, or integrated with existing health apps..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or References
+      description: Are there existing implementations or examples you can point to?
+      placeholder: |
+        - Similar features in other products
+        - Code repositories
+        - Research papers
+        - Mock-ups or sketches
+    validations:
+      required: false
+
+  - type: textarea
+    id: personality-fit
+    attributes:
+      label: Personality Integration
+      description: How should this feature fit with the Pixel Plant's caring personality?
+      placeholder: |
+        What kind of responses, animations, or behaviors would make this feature feel caring and supportive?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Would you be interested in helping implement this feature?
+      options:
+        - label: I'd like to help with the implementation
+        - label: I can help with testing
+        - label: I can contribute documentation
+        - label: I can help with design/UX
+        - label: I'd prefer someone else implement it
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you've done the following
+      options:
+        - label: I've searched existing issues to make sure this isn't a duplicate
+          required: true
+        - label: This feature aligns with the Pixel Plant's caring philosophy
+          required: true
+        - label: I've provided enough detail for others to understand the feature
+          required: true

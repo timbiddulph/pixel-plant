@@ -1,0 +1,174 @@
+name: Hardware Help
+description: Get help with assembly, wiring, or hardware troubleshooting
+title: "[HARDWARE] "
+labels: ["hardware", "help-wanted"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help with your Pixel Plant hardware? We're here to help you get your caring companion up and running!
+
+  - type: textarea
+    id: hardware-issue
+    attributes:
+      label: What do you need help with?
+      description: Describe the hardware challenge you're facing
+      placeholder: "I'm having trouble connecting the LED strip to the ESP32-S3..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build-stage
+    attributes:
+      label: Build Stage
+      description: What stage of the build are you at?
+      options:
+        - Planning/Component Selection
+        - Initial Assembly/Breadboard
+        - Wiring/Connections
+        - First Power-On
+        - Component Testing
+        - Final Assembly
+        - Enclosure/Housing
+        - Completed but having issues
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: components-status
+    attributes:
+      label: Component Status
+      description: Which components do you have and what's their status?
+      options:
+        - label: ESP32-S3 FireBeetle (working/untested/issues)
+        - label: RGB LED Strip (working/untested/issues)
+        - label: Audio Amplifier MAX98357A (working/untested/issues)
+        - label: 40mm Speaker (working/untested/issues)
+        - label: PIR Sensor (working/untested/issues)
+        - label: Resistors/Basic Components (have/need/issues)
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: Current Setup Description
+      description: Describe your current hardware setup and wiring
+      placeholder: |
+        - How have you connected the components?
+        - What power supply are you using?
+        - Any modifications or substitutions?
+    validations:
+      required: true
+
+  - type: textarea
+    id: specific-symptoms
+    attributes:
+      label: Specific Symptoms
+      description: What exactly is happening (or not happening)?
+      placeholder: |
+        - LEDs not lighting up
+        - No audio output
+        - ESP32 not powering on
+        - Intermittent connections
+        - Overheating issues
+        - etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: measurements
+    attributes:
+      label: Measurements/Testing
+      description: Have you done any electrical testing?
+      placeholder: |
+        - Voltage measurements
+        - Continuity testing
+        - Current draw measurements
+        - Component isolation tests
+    validations:
+      required: false
+
+  - type: textarea
+    id: photos-videos
+    attributes:
+      label: Photos/Videos
+      description: Please attach photos of your setup, wiring, or any visual issues
+      placeholder: |
+        Photos of:
+        - Overall setup
+        - Specific problem areas
+        - Wiring connections
+        - Component placement
+        
+        You can drag and drop images here or use GitHub's attachment feature.
+    validations:
+      required: false
+
+  - type: textarea
+    id: tools-available
+    attributes:
+      label: Available Tools
+      description: What tools do you have available for debugging?
+      placeholder: |
+        - Multimeter
+        - Oscilloscope
+        - Logic analyzer
+        - Just basic hand tools
+    validations:
+      required: false
+
+  - type: dropdown
+    id: experience-level
+    attributes:
+      label: Electronics Experience Level
+      description: How would you describe your electronics experience?
+      options:
+        - Beginner (first electronics project)
+        - Some experience (built a few projects)
+        - Intermediate (comfortable with circuits)
+        - Advanced (experienced maker)
+    validations:
+      required: true
+
+  - type: textarea
+    id: attempted-solutions
+    attributes:
+      label: What Have You Tried?
+      description: What troubleshooting steps have you already attempted?
+      placeholder: |
+        - Checked all connections
+        - Tried different power supplies
+        - Tested components individually
+        - Reviewed documentation
+        - etc.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency Level
+      description: How urgent is this issue for you?
+      options:
+        - Just learning - no rush
+        - Working on it this week
+        - Need for upcoming demo/event
+        - Completely stuck - urgent help needed
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you've done the following
+      options:
+        - label: I've checked the assembly documentation in docs/hardware/
+          required: true
+        - label: I've searched existing issues for similar problems
+          required: true
+        - label: I've included photos or detailed descriptions of my setup
+          required: true
+        - label: I'm following proper safety precautions
+          required: true
