@@ -4,192 +4,281 @@
 
 ## 🎯 Quick Start
 
-**Time to setup**: ~20 minutes  
-**Skill level**: Beginner friendly  
-**Platform**: Windows, macOS, Linux
+**Time to setup**: ~45 minutes
+**Skill level**: Beginner friendly
+**Platform**: Raspberry Pi Zero 2 W (development machine can be Windows, macOS, or Linux)
 
 ### Prerequisites
-- Computer with USB port
-- Internet connection for downloads
-- DFRobot FireBeetle ESP32-S3 (for hardware testing)
+- Raspberry Pi Zero 2 W with power supply (5V 2.5A)
+- 32GB microSD card (Class 10 or better)
+- Pi Camera Module (CSI interface)
+- Computer with SD card reader
+- WiFi network access
 
-## 📥 Step 1: Install Arduino IDE
+## 📥 Step 1: Flash Raspberry Pi OS
 
-### Download and Install
-1. **Visit**: [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)
-2. **Download**: Arduino IDE 2.0+ (recommended) or 1.8.19+
-3. **Install**: Follow the installer for your operating system
+### Download Raspberry Pi Imager
+1. **Visit**: [https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/)
+2. **Download**: Raspberry Pi Imager for your OS
+3. **Install**: Run the installer
 
-### Alternative: Arduino IDE Online
-- Use [Arduino Web Editor](https://create.arduino.cc/editor) if you prefer cloud-based development
-- Requires Arduino Create Agent for hardware communication
+### Flash the SD Card
+1. **Insert** microSD card into your computer
+2. **Open** Raspberry Pi Imager
+3. **Choose OS**: Raspberry Pi OS Lite (64-bit) - *No desktop environment needed*
+4. **Choose Storage**: Select your microSD card
+5. **Click the gear icon** ⚙️ for advanced options:
 
-### VS Code Alternative (Advanced)
-For experienced developers:
-```bash
-# Install VS Code extension
-code --install-extension vsciot-vscode.vscode-arduino
+### Advanced Configuration (Important!)
+```
+Hostname: pixelplant.local
+Enable SSH: Yes (use password authentication)
+Set username and password:
+  - Username: pi
+  - Password: (choose a secure password)
+Configure wireless LAN:
+  - SSID: (your WiFi network name)
+  - Password: (your WiFi password)
+  - Country: (your country code, e.g., GB)
+Set locale settings:
+  - Timezone: (your timezone)
+  - Keyboard: (your layout)
 ```
 
-## ⚙️ Step 2: Configure ESP32-S3 Board Support
+6. **Click Write** and wait for completion (~10 minutes)
 
-### Add Board Manager URL
-1. Open Arduino IDE
-2. Go to **File → Preferences**
-3. In **Additional Board Manager URLs**, add:
-   ```
-   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-   ```
-4. Click **OK**
+## 🔧 Step 2: First Boot & SSH Access
 
-### Install ESP32 Boards
-1. Go to **Tools → Board → Boards Manager**
-2. Search for **"ESP32"**
-3. Install **"ESP32 by Espressif Systems"** (version 2.0.5+)
-4. Wait for installation to complete
+### Power On Pi Zero 2 W
+1. **Insert** flashed SD card into Pi
+2. **Connect** camera module to CSI port (metal contacts facing board)
+3. **Power on** via micro USB
+4. **Wait** 2-3 minutes for first boot
 
-### Select Your Board
-1. Go to **Tools → Board → ESP32 Arduino**
-2. Select **"ESP32S3 Dev Module"**
-
-### Configure Board Settings
-For DFRobot FireBeetle ESP32-S3:
-```
-Board: "ESP32S3 Dev Module"
-Upload Speed: "921600"
-USB Mode: "Hardware CDC and JTAG"
-USB CDC On Boot: "Enabled"
-USB Firmware MSC On Boot: "Disabled"
-USB DFU On Boot: "Disabled"
-Upload Mode: "UART0 / Hardware CDC"
-CPU Frequency: "240MHz (WiFi)"
-Flash Mode: "QIO 80MHz"
-Flash Size: "16MB (128Mb)"
-Partition Scheme: "16M Flash (3MB APP/9MB FATFS)"
-Core Debug Level: "None"
-PSRAM: "OPI PSRAM"
-Arduino Runs On: "Core 1"
-Events Run On: "Core 1"
-```
-
-## 📚 Step 3: Install Required Libraries
-
-### Method 1: Library Manager (Recommended)
-1. Go to **Tools → Manage Libraries**
-2. Install these libraries:
-
-#### Core Libraries
-- **FastLED** by Daniel Garcia (latest version)
-- **ArduinoJson** by Benoit Blanchon (6.19+)
-
-#### Audio Libraries
-- **ESP32-audioI2S** by schreibfaul1
-- **ESP32-I2S-Audio-Player** (alternative)
-
-#### AI/ML Libraries
-- **TensorFlowLite_ESP32** by TensorFlow Authors
-- **EdgeImpulse-SDK** (optional, for custom models)
-
-#### Utility Libraries
-- **WiFiManager** by tzapu (for easy WiFi setup)
-- **Preferences** (included with ESP32 core)
-- **SPIFFS** (included with ESP32 core)
-
-### Method 2: Manual Installation
-If Library Manager doesn't work:
+### Connect via SSH
+From your development machine:
 
 ```bash
-# Clone repositories to your libraries folder
-cd ~/Documents/Arduino/libraries/
+# macOS/Linux
+ssh pi@pixelplant.local
 
-# FastLED
-git clone https://github.com/FastLED/FastLED.git
+# Windows (PowerShell)
+ssh pi@pixelplant.local
 
-# ESP32-audioI2S
-git clone https://github.com/schreibfaul1/ESP32-audioI2S.git
+# If hostname doesn't resolve, find IP via router admin page
+ssh pi@192.168.x.x
 ```
 
-### Verify Installation
-Create a test sketch:
-```cpp
-#include <FastLED.h>
-#include <ArduinoJson.h>
-#include "WiFi.h"
+### Initial System Update
+```bash
+# Update package lists
+sudo apt update
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("✅ All libraries loaded successfully!");
-}
+# Upgrade installed packages
+sudo apt upgrade -y
 
-void loop() {
-  delay(1000);
-}
+# Install essential tools
+sudo apt install -y git vim python3-pip python3-venv
 ```
 
-## 🔧 Step 3: Project Setup
+## ⚙️ Step 3: Enable Hardware Interfaces
+
+### Run Raspberry Pi Configuration
+```bash
+sudo raspi-config
+```
+
+Navigate using arrow keys:
+
+1. **Interface Options → Camera** → Enable
+2. **Interface Options → I2C** → Enable (for future sensors)
+3. **Interface Options → SPI** → Enable (for future expansion)
+4. **Performance → GPU Memory** → Set to 128MB (camera needs this)
+
+**Reboot** when prompted:
+```bash
+sudo reboot
+```
+
+### Configure I2S Audio (MAX98357A)
+After reboot, SSH back in and edit boot config:
+
+```bash
+sudo nano /boot/config.txt
+```
+
+Add these lines at the end:
+```
+# Enable I2S audio for MAX98357A
+dtoverlay=hifiberry-dac
+dtoverlay=i2s-mmap
+```
+
+Disable onboard audio (optional but recommended):
+```
+# Comment out or remove:
+# dtparam=audio=on
+```
+
+Save (Ctrl+O, Enter) and exit (Ctrl+X).
+
+### Verify Camera
+```bash
+# Test camera detection
+libcamera-hello --list-cameras
+
+# Should show your camera model (OV5647 or IMX219)
+```
+
+## 📚 Step 4: Clone Project and Setup Python Environment
 
 ### Clone the Repository
 ```bash
+cd ~
 git clone https://github.com/your-username/pixel-plant.git
 cd pixel-plant
 ```
 
-### Open Main Project
-1. Open Arduino IDE
-2. **File → Open**
-3. Navigate to: `firmware/pixel_plant/pixel_plant.ino`
-4. The IDE will open all project files in tabs
+### Create Python Virtual Environment
+```bash
+# Create virtual environment
+python3 -m venv venv
 
-### Project Structure Understanding
-```
-firmware/pixel_plant/
-├── pixel_plant.ino          # Main sketch
-├── config.h                 # Configuration constants
-├── src/
-│   ├── hardware/           # Hardware abstraction
-│   ├── personality/        # AI personality engine
-│   ├── ai/                 # Computer vision & behavior
-│   └── utils/              # Helper functions
-├── libraries/              # Custom libraries
-└── examples/               # Component test sketches
+# Activate it
+source venv/bin/activate
+
+# Verify Python version (should be 3.9+)
+python --version
 ```
 
-## 🧪 Step 4: Test Your Setup
+### Install System Dependencies
+```bash
+# Install required system packages for OpenCV, audio, and LEDs
+sudo apt install -y \
+  libopencv-dev \
+  python3-opencv \
+  libatlas-base-dev \
+  libhdf5-dev \
+  libjasper-dev \
+  libqtgui4 \
+  libqt4-test \
+  espeak \
+  libespeak-dev \
+  portaudio19-dev \
+  python3-pyaudio
+```
 
-### Quick Verification Test
-1. **Connect** ESP32-S3 via USB
-2. **Select Port**: Tools → Port → (your ESP32 port)
-3. **Load Test Sketch**: Open `firmware/examples/led_test/led_test.ino`
-4. **Upload**: Click Upload button (→)
-5. **Verify**: LEDs should show rainbow pattern
+### Install Python Packages
+```bash
+# Ensure pip is up to date
+pip install --upgrade pip
 
-### Component Tests
-Run these in order:
-1. **LED Test**: `firmware/examples/led_test/`
-2. **Audio Test**: `firmware/examples/audio_test/`
-3. **PIR Test**: `firmware/examples/pir_test/`
-4. **Camera Test**: `firmware/examples/camera_test/`
+# Install from requirements.txt
+pip install -r requirements.txt
+```
 
-### Serial Monitor Setup
-1. **Open**: Tools → Serial Monitor
-2. **Set Baud Rate**: 115200
-3. **Line Ending**: Both NL & CR
-4. **Watch for**: Startup messages and test output
+Example `requirements.txt`:
+```
+# Core ML/Vision
+numpy>=1.21.0
+opencv-python-headless>=4.5.0
+tflite-runtime>=2.5.0
+mediapipe>=0.8.0
 
-## 🔍 Step 5: Development Workflow
+# Camera
+picamera2>=0.3.0
+
+# Hardware Control
+rpi-ws281x>=4.3.0  # LED strip control
+RPi.GPIO>=0.7.1    # GPIO access
+adafruit-circuitpython-neopixel>=6.0.0
+
+# Audio/TTS
+pyttsx3>=2.90
+pyaudio>=0.2.11
+
+# Utilities
+pyyaml>=6.0
+schedule>=1.1.0
+```
+
+**Note**: Some packages (like tflite-runtime and mediapipe) may take 10-20 minutes to install on Pi Zero 2 W.
+
+## 🧪 Step 5: Hardware Testing
+
+### LED Strip Test
+```bash
+# Ensure you're in virtual environment
+source ~/pixel-plant/venv/bin/activate
+
+# Run LED test (requires sudo for GPIO access)
+sudo venv/bin/python examples/test_leds.py
+```
+
+### Camera Test
+```bash
+# Test camera capture
+python examples/test_camera.py
+```
+
+### Audio Test
+```bash
+# Test text-to-speech
+python examples/test_audio.py
+```
+
+### PIR Sensor Test
+```bash
+sudo venv/bin/python examples/test_pir.py
+```
+
+## 🔍 Step 6: Development Workflow
+
+### Remote Development Options
+
+#### Option 1: SSH + Command Line Editor
+```bash
+# Edit files directly on Pi
+nano src/main.py
+vim src/main.py
+```
+
+#### Option 2: VS Code Remote SSH (Recommended)
+1. Install VS Code on your development machine
+2. Install "Remote - SSH" extension
+3. Connect: `Ctrl/Cmd+Shift+P` → "Remote-SSH: Connect to Host"
+4. Enter: `pi@pixelplant.local`
+5. Open folder: `/home/pi/pixel-plant`
+
+#### Option 3: SSHFS Mount (macOS/Linux)
+```bash
+# Mount Pi filesystem locally
+mkdir ~/pixelplant-remote
+sshfs pi@pixelplant.local:/home/pi/pixel-plant ~/pixelplant-remote
+
+# Edit with your local editor
+code ~/pixelplant-remote
+```
 
 ### Daily Development Cycle
 ```bash
-# 1. Pull latest changes
+# 1. SSH into Pi
+ssh pi@pixelplant.local
+
+# 2. Activate virtual environment
+cd ~/pixel-plant
+source venv/bin/activate
+
+# 3. Pull latest changes
 git pull origin main
 
-# 2. Make your changes
-# Edit files in Arduino IDE
+# 4. Run the application
+sudo venv/bin/python src/main.py
 
-# 3. Test frequently
-# Upload to hardware, check serial monitor
+# 5. Test changes, iterate
+# Ctrl+C to stop, edit code, run again
 
-# 4. Commit your work
+# 6. Commit your work
 git add .
 git commit -m "Add caring hydration reminders"
 git push origin your-branch
@@ -197,130 +286,198 @@ git push origin your-branch
 
 ### Code Organization Best Practices
 - **Keep functions small** - max 50 lines
-- **Use descriptive names** - `showCaringAnimation()` not `anim1()`
-- **Comment your intentions** - explain the "why", not the "what"
+- **Use descriptive names** - `show_caring_animation()` not `anim1()`
+- **Type hints** - Use Python type annotations for clarity
+- **Docstrings** - Document all functions and classes
 - **Test on hardware frequently** - don't write too much without testing
 
 ### Debugging Tools
-1. **Serial Monitor**: Primary debugging tool
-2. **Serial Plotter**: Visualize sensor data
-3. **ESP32 Exception Decoder**: Decode crash logs
-4. **Logic Analyzer**: For I2S/SPI debugging (advanced)
+1. **Print statements**: Quick and effective
+2. **Python debugger**: `import pdb; pdb.set_trace()`
+3. **Logging**: Use Python's logging module for production
+4. **Remote debugging**: VS Code debugger via SSH
 
 ## 🚨 Common Issues & Solutions
 
-### ESP32 Not Found
-**Problem**: "Port not found" or "device not recognized"
+### Camera Not Detected
+**Problem**: `libcamera-hello` shows no cameras
 **Solutions**:
-- Install CP210x USB drivers from Silicon Labs
-- Try different USB cable (must support data)
-- Press and hold BOOT button during upload
-- Check if other software is using the port
+- Check CSI cable connection (metal contacts face PCB)
+- Ensure cable is fully seated in both connectors
+- Run `sudo raspi-config` and enable camera interface
+- Check GPU memory is set to 128MB
+- Reboot after configuration changes
 
-### Library Conflicts
-**Problem**: Compilation errors about missing libraries
+### LED Strip Not Working
+**Problem**: No lights or incorrect colors
 **Solutions**:
-```bash
-# Clean library conflicts
-rm -rf ~/Documents/Arduino/libraries/conflicting_lib
-# Reinstall from Library Manager
+```python
+# Must run with sudo for GPIO access
+sudo venv/bin/python test_leds.py
+
+# Check wiring:
+# - Data: GPIO 18 (pin 12)
+# - Power: 5V (pin 2 or 4)
+# - Ground: GND (pin 6)
 ```
 
-### Memory Issues
-**Problem**: "Not enough memory" during compilation
+### Audio Not Working
+**Problem**: No sound from speaker
 **Solutions**:
-- Check Partition Scheme (use 16M Flash option)
-- Remove unused #include statements
-- Use PROGMEM for large constants
+- Check I2S configuration in `/boot/config.txt`
+- Verify MAX98357A wiring (BCLK, LRCLK, DIN pins)
+- Test with `speaker-test -t sine -f 440`
+- Ensure audio device is listed: `aplay -l`
 
-### Upload Failures
-**Problem**: Upload fails or times out
+### Out of Memory Errors
+**Problem**: Python crashes with memory errors
 **Solutions**:
-- Lower upload speed to 460800 or 115200
-- Press BOOT button right before upload
-- Check power supply (use USB 3.0 port)
-- Try pressing RESET then BOOT buttons
+```bash
+# Check available memory
+free -h
+
+# Create swap file (if needed)
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile
+# Set CONF_SWAPSIZE=1024
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
+```
 
 ### WiFi Connection Issues
-**Problem**: ESP32 can't connect to WiFi
+**Problem**: Pi loses WiFi connection
 **Solutions**:
-```cpp
-// Add to setup()
-WiFi.mode(WIFI_STA);
-WiFi.begin("YourNetwork", "YourPassword");
+```bash
+# Check connection status
+iwconfig wlan0
+
+# Reconnect
+sudo systemctl restart dhcpcd
+
+# Set static IP (in /etc/dhcpcd.conf)
+interface wlan0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=8.8.8.8
+```
+
+### Permission Errors
+**Problem**: "Permission denied" for GPIO
+**Solutions**:
+```bash
+# Run with sudo
+sudo venv/bin/python src/main.py
+
+# Or add user to gpio group
+sudo usermod -a -G gpio,i2c,spi pi
+# Then logout and back in
 ```
 
 ## ⚡ Performance Optimization
 
 ### Memory Management
-```cpp
-// Use PROGMEM for large strings
-const char PROGMEM careTip[] = "Remember to hydrate!";
+```python
+# Use generators for large data
+def process_frames():
+    for frame in camera.capture_continuous():
+        yield process_frame(frame)
 
-// Free unused memory
-esp_wifi_stop();  // If not using WiFi
+# Clear unused variables
+del large_array
+import gc
+gc.collect()
 
-// Monitor memory usage
-Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
+# Monitor memory usage
+import psutil
+print(f"Memory: {psutil.virtual_memory().percent}%")
 ```
 
 ### CPU Optimization
-```cpp
-// Use appropriate delays
-delay(50);        // For animations
-delayMicroseconds(10);  // For precise timing
+```python
+# Use NumPy operations (vectorized)
+import numpy as np
+result = np.mean(frame, axis=2)  # Fast
 
-// Optimize loops
-for(int i = 0; i < LED_COUNT; i++) {
-  // Keep loop body simple
-}
+# Avoid Python loops for pixel operations
+# BAD:
+for y in range(height):
+    for x in range(width):
+        pixel = frame[y, x]
+
+# GOOD:
+gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 ```
 
-## 🔧 Advanced Development Setup
+### Reduce Frame Processing
+```python
+# Skip frames for faster processing
+frame_skip = 3
+frame_count = 0
 
-### PlatformIO (Alternative to Arduino IDE)
+for frame in camera.capture_continuous():
+    frame_count += 1
+    if frame_count % frame_skip != 0:
+        continue
+    # Process frame
+```
+
+## 🔧 Production Setup
+
+### Create Systemd Service
+```bash
+sudo nano /etc/systemd/system/pixel-plant.service
+```
+
+Add:
 ```ini
-# platformio.ini
-[env:esp32s3]
-platform = espressif32
-board = esp32-s3-devkitc-1
-framework = arduino
-lib_deps = 
-  fastled/FastLED@^3.5.0
-  bblanchon/ArduinoJson@^6.19.4
-monitor_speed = 115200
+[Unit]
+Description=Pixel Plant AI Companion
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/pi/pixel-plant
+ExecStart=/home/pi/pixel-plant/venv/bin/python src/main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-### Custom Board Definitions
-For specialized hardware configurations:
-```cpp
-// boards.txt additions for custom variants
-pixel_plant_v1.name=Pixel Plant v1.0
-pixel_plant_v1.vid.0=0x10c4
-pixel_plant_v1.pid.0=0xea60
+Enable and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable pixel-plant
+sudo systemctl start pixel-plant
+
+# Check status
+sudo systemctl status pixel-plant
+
+# View logs
+sudo journalctl -u pixel-plant -f
 ```
 
-### Automated Testing
-```cpp
-// Simple unit test framework
-void runTests() {
-  assert(testLEDConnection() == true);
-  assert(testAudioOutput() == true);
-  assert(testSensorInput() == true);
-  Serial.println("✅ All tests passed!");
-}
-```
+### Auto-restart on Crash
+The systemd service with `Restart=always` handles this automatically.
 
 ## 🌐 Version Control Integration
 
-### Git Workflow for Arduino
+### Git Workflow for Python
 ```bash
 # Recommended .gitignore
-*.tmp
-*.bak
-*~
-.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.vscode/
+*.egg-info/
+dist/
 build/
+.DS_Store
+*.log
+config/local_config.yaml
 ```
 
 ### Branch Strategy
@@ -329,32 +486,40 @@ build/
 - **feature/caring-reminders**: Feature branches
 - **hotfix/audio-volume**: Critical fixes
 
-## 📱 Mobile Development (Future)
-For companion mobile apps:
-- **Flutter**: Cross-platform development
-- **React Native**: JavaScript-based mobile apps
-- **Native**: iOS (Swift) / Android (Kotlin)
-
 ## 🤝 Contributing Guidelines
 
 ### Code Style
-```cpp
-// Use camelCase for variables
-int currentMood = MOOD_HAPPY;
+```python
+# Use snake_case for variables and functions
+current_mood = Mood.HAPPY
 
-// Use descriptive function names
-void showCaringReminder() {
-  // Implementation
-}
+# Use descriptive function names
+def show_caring_reminder(message: str) -> None:
+    """Display a caring reminder with appropriate LED animation.
 
-// Include caring philosophy in comments
-// This gentle animation helps users feel supported
-// without being overwhelming or demanding
+    Args:
+        message: The caring message to speak to the user
+    """
+    # Implementation
+
+# Include caring philosophy in comments
+# This gentle animation helps users feel supported
+# without being overwhelming or demanding
+```
+
+### Type Hints
+```python
+from typing import Optional, List
+
+def get_reminder(mood: Mood, category: str) -> Optional[str]:
+    """Get appropriate reminder for mood and category."""
+    pass
 ```
 
 ### Pull Request Checklist
-- [ ] Code compiles without warnings
-- [ ] Hardware tested on actual device
+- [ ] Code passes linting (flake8/pylint)
+- [ ] Type hints included
+- [ ] Hardware tested on actual Pi
 - [ ] Documentation updated
 - [ ] Caring philosophy maintained
 - [ ] No hardcoded secrets
@@ -364,33 +529,30 @@ void showCaringReminder() {
 ### Community Resources
 - **GitHub Issues**: Technical problems and bugs
 - **GitHub Discussions**: General questions and ideas
-- **Arduino Forums**: ESP32-specific technical issues
-- **Discord/Slack**: Real-time community chat (links in README)
+- **Raspberry Pi Forums**: Pi-specific technical issues
+- **r/raspberry_pi**: Reddit community support
 
 ### Documentation
 - **API Reference**: `/docs/software/api.md`
 - **Hardware Guide**: `/docs/hardware/assembly.md`
 - **Troubleshooting**: `/docs/troubleshooting.md`
 
-### Professional Support
-For educational institutions or commercial projects:
-- Email: support@pixelplant.ai (if available)
-- Issue tracking with priority labels
-- Educational discounts available
-
 ---
 
 ## ✅ Verification Checklist
 
 Before you start developing:
-- [ ] Arduino IDE 2.0+ installed
-- [ ] ESP32 board package installed and configured
-- [ ] All required libraries installed
-- [ ] Hardware connected and recognized
-- [ ] LED test sketch runs successfully
-- [ ] Serial monitor shows clean output
+- [ ] Raspberry Pi OS flashed and booting
+- [ ] SSH access working
+- [ ] Camera interface enabled and detected
+- [ ] I2S audio configured
+- [ ] Python virtual environment created
+- [ ] All required packages installed
+- [ ] LED test script runs successfully
+- [ ] Camera test captures images
+- [ ] Audio test plays sounds
 - [ ] Git repository cloned
-- [ ] Main project opens without errors
+- [ ] VS Code Remote SSH configured (optional)
 
 **Ready to build caring technology!** 🌿✨
 
@@ -398,5 +560,5 @@ Before you start developing:
 
 ---
 
-*Last updated: December 2024*  
+*Last updated: November 2024*
 *If you find issues with this setup guide, please report them on GitHub Issues*

@@ -22,19 +22,19 @@ The Pixel Plant AI Companion project is now **fully prepared** for hardware deve
 - **✅ Security Policy**: Vulnerability reporting and security best practices
 - **✅ MIT License**: Open source licensing for community contributions
 
-### 💻 **Core Firmware Architecture (95% Complete)**
-- **✅ Main Application**: Complete system architecture with caring personality
-- **✅ Configuration System**: All hardware pins and parameters defined
-- **✅ Personality Engine**: 200+ caring message variations, mood system, learning framework
-- **✅ Behavior Monitor**: AI behavior analysis and pattern recognition system  
-- **✅ LED Animation Manager**: Mood-based visual expressions and organic animations
-- **✅ Hardware Abstraction**: Clean interfaces for all components
+### 💻 **Core Software Architecture (Needs Rewrite for Pi)**
+- **🔄 Main Application**: Requires rewrite from Arduino C++ to Python
+- **🔄 Configuration System**: Migrate to YAML-based configuration
+- **✅ Personality Engine**: Message variations and mood system (logic reusable)
+- **🔄 Behavior Monitor**: Upgrade to TensorFlow/MediaPipe (more capable)
+- **🔄 LED Animation Manager**: Port to rpi_ws281x Python library
+- **🔄 Hardware Abstraction**: Rewrite for RPi.GPIO and Picamera2
 
-### 🧪 **Testing & Validation Tools (100% Complete)**
-- **✅ Component Test Sketches**: Individual tests for LED, audio, PIR, camera
-- **✅ Hardware Validation Checklist**: Systematic testing procedures
-- **✅ Development Environment Guide**: Complete setup instructions
-- **✅ Troubleshooting Documentation**: Common issues and solutions
+### 🧪 **Testing & Validation Tools (Needs Update for Pi)**
+- **🔄 Component Test Scripts**: Need Python test scripts for LED, audio, PIR, camera
+- **🔄 Hardware Validation Checklist**: Update for Pi Zero 2 W connections
+- **🔄 Development Environment Guide**: Update for Python/Raspberry Pi OS setup
+- **✅ Troubleshooting Documentation**: General principles still apply
 
 ### 📚 **Documentation Suite (90% Complete)**
 - **✅ Comprehensive README**: Project overview, features, quick start
@@ -50,45 +50,46 @@ The Pixel Plant AI Companion project is now **fully prepared** for hardware deve
 When your components arrive, you'll have:
 
 ### 🔧 **Immediate Testing Capability**
-1. **LED Strip Test**: `firmware/examples/led_test/led_test.ino`
-   - 8 different animation patterns
+1. **LED Strip Test**: `examples/test_leds.py`
+   - Multiple animation patterns using rpi_ws281x
    - Individual LED validation
    - Color accuracy testing
    - Performance benchmarking
 
-2. **Audio System Test**: `firmware/examples/audio_test/audio_test.ino`
-   - I2S interface validation
-   - Speaker performance testing
+2. **Audio System Test**: `examples/test_audio.py`
+   - I2S interface validation with MAX98357A
+   - Text-to-speech testing with pyttsx3/espeak
    - Audio quality assessment
    - Caring tone demonstrations
 
-3. **Motion Sensor Test**: `firmware/examples/pir_test/pir_test.ino`
-   - PIR sensor calibration
+3. **Motion Sensor Test**: `examples/test_pir.py`
+   - PIR sensor calibration using RPi.GPIO
    - Motion detection validation
    - Sensitivity adjustment
    - Statistics and analytics
 
-4. **Camera Test**: `firmware/examples/camera_test/camera_test.ino`
-   - Camera initialization verification
-   - Image capture testing
+4. **Camera Test**: `examples/test_camera.py`
+   - Camera initialization with Picamera2
+   - Image capture and preview testing
    - Resolution and quality testing
-   - Memory usage validation
+   - Basic OpenCV integration test
 
 ### 📖 **Systematic Validation Process**
 - **Hardware Checklist**: `docs/hardware/validation_checklist.md`
   - Component inventory verification
-  - Power system validation
+  - Pi Zero 2 W setup and boot validation
+  - GPIO wiring verification
   - Individual component testing
   - Integration testing procedures
   - Troubleshooting guides
 
 ### 🚀 **Main System Integration**
-- **Complete Firmware**: `firmware/pixel_plant/pixel_plant.ino`
+- **Complete Application**: `src/main.py`
   - System state management
   - Caring personality responses
-  - Behavioral pattern recognition
-  - LED mood expressions
-  - Audio personality system
+  - Behavioral pattern recognition (TensorFlow/MediaPipe)
+  - LED mood expressions (rpi_ws281x)
+  - Audio personality system (pyttsx3)
 
 ---
 
@@ -145,65 +146,73 @@ The system includes 50+ unique caring messages across categories:
 
 ## 🎯 **Immediate Next Steps (When Hardware Arrives)**
 
-### Day 1: Component Validation
-1. **Power System Test** (30 minutes)
-   - Connect ESP32-S3 via USB
-   - Verify power LEDs and serial communication
-   - Check voltage levels with multimeter
+### Day 1: Pi Setup & Component Validation
+1. **Pi Zero 2 W Setup** (60 minutes)
+   - Flash Raspberry Pi OS Lite to SD card
+   - Configure WiFi and enable SSH in Imager
+   - First boot and SSH connection
+   - Enable camera interface via raspi-config
 
 2. **LED Strip Test** (45 minutes)
-   - Load `led_test.ino` 
+   - Wire WS2812B strip to GPIO 18 (PWM)
+   - Run `python examples/test_leds.py`
    - Verify all 60 LEDs function
    - Test color accuracy and animations
 
-3. **Audio System Test** (30 minutes)
-   - Load `audio_test.ino`
-   - Verify I2S connections and speaker output
-   - Test various frequencies and tones
+3. **Audio System Test** (45 minutes)
+   - Configure I2S audio overlay in /boot/config.txt
+   - Wire MAX98357A to GPIO 18/19/21
+   - Run `python examples/test_audio.py`
+   - Test text-to-speech output
 
 4. **Sensor Tests** (45 minutes)
-   - PIR motion detection validation
-   - Camera initialization and image capture
-   - Environmental sensor readings
+   - PIR motion detection on GPIO pin
+   - Camera initialization with Picamera2
+   - Test image capture and preview
 
 ### Day 2: System Integration
-1. **Load Main Firmware** (30 minutes)
-   - Upload `pixel_plant.ino`
-   - Verify system boot sequence
-   - Test serial command interface
+1. **Python Environment Setup** (30 minutes)
+   - Create virtual environment
+   - Install dependencies from requirements.txt
+   - Verify TensorFlow Lite and OpenCV installation
 
 2. **Integration Testing** (90 minutes)
+   - Run `python src/main.py`
    - All components working together
    - System stability testing
-   - Performance validation
+   - Performance validation (frame rates, response times)
 
 3. **First Care Interaction** (60 minutes)
    - Test motion-triggered responses
    - Verify LED mood animations
    - Validate caring message system
+   - Configure systemd service for auto-start
 
 ---
 
 ## 🔧 **Technical Specifications Ready**
 
 ### Hardware Configuration
-- **Board**: ESP32-S3 FireBeetle with camera
-- **LEDs**: WS2812B strip (60 LEDs) on GPIO 18  
-- **Audio**: MAX98357A I2S amplifier on GPIO 19/20/21
-- **Motion**: PIR sensor on GPIO 22
-- **Power**: USB 5V, 2A+ recommended
+- **Board**: Raspberry Pi Zero 2 W (quad-core ARM Cortex-A53 @ 1GHz)
+- **Camera**: Pi Camera Module (5-8MP via CSI interface)
+- **LEDs**: WS2812B strip (60 LEDs) on GPIO 18 (PWM)
+- **Audio**: MAX98357A I2S amplifier on GPIO 18/19/21
+- **Motion**: PIR sensor on GPIO (configurable)
+- **Storage**: 32GB microSD Card (Class 10)
+- **Power**: USB 5V, 2.5A recommended
 
-### Software Stack  
-- **Platform**: Arduino IDE with ESP32 core
-- **Libraries**: FastLED, ESP32-audioI2S, ArduinoJson
-- **Memory**: 16MB Flash, 8MB PSRAM
-- **Features**: AI behavior recognition, TTS, learning system
+### Software Stack
+- **Platform**: Raspberry Pi OS Lite (64-bit) with Python 3.9+
+- **Libraries**: TensorFlow Lite, OpenCV, MediaPipe, Picamera2, rpi_ws281x, pyttsx3
+- **Memory**: 512MB RAM (shared with GPU)
+- **Features**: AI behavior recognition, TTS, learning system, SSH remote access
 
 ### Performance Targets
-- **Boot Time**: <5 seconds to operational
-- **Response Time**: <100ms for motion detection
+- **Boot Time**: ~20-30 seconds to operational (Linux boot)
+- **Response Time**: <200ms for motion detection
+- **Frame Rate**: 15-25 FPS for pose detection
 - **Animation Rate**: 60fps LED updates
-- **Memory Usage**: <80% of available RAM
+- **Memory Usage**: <80% of 512MB RAM
 - **Stability**: 24+ hour continuous operation
 
 ---

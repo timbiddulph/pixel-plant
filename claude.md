@@ -41,30 +41,45 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
 ## 🔧 Technical Architecture
 
 ### Hardware Platform
-**Core System**: DFRobot FireBeetle 2 ESP32-S3 with Camera (External Antenna)
-- **ESP32-S3-WROOM-1-N16R8** with AI acceleration capabilities
-- **16MB Flash + 8MB PSRAM** for sophisticated AI model storage
-- **OV2640 2MP camera** (68° FOV) for behavioral monitoring
-- **External WiFi antenna** for reliable connectivity and future expansions
+**Core System**: Raspberry Pi Zero 2 W
+- **Quad-core 64-bit ARM Cortex-A53** @ 1GHz with excellent AI processing capabilities
+- **512MB RAM** for sophisticated ML model inference and multitasking
+- **Built-in WiFi and Bluetooth** for connectivity and future expansions
+- **Full Linux OS** enables rich Python ML ecosystem (TensorFlow, OpenCV, MediaPipe)
+
+**Camera**: Raspberry Pi Camera Module (Official or Compatible)
+- **Option 1**: Pi Camera Module 2 (8MP Sony IMX219 sensor) - £25
+- **Option 2**: Pi Camera Module 1.3 (5MP OV5647) - £10-15 used
+- **Option 3**: Generic OV5647 camera module - £10-12
+- **CSI interface** for fast, reliable video capture
+- **Recommended**: Generic OV5647 for budget, or Camera Module 2 for best quality
 
 ### Component Breakdown
-**Ordered Components** (£53.00 total):
-- FireBeetle 2 ESP32-S3 with Camera - External Antenna (£20.10)
+**Core Components** (~£58-71 total):
+- Raspberry Pi Zero 2 W (£15)
+- Pi Camera Module (£10-25 depending on option)
+- 32GB microSD Card Class 10 (£8)
 - Flexible RGB LED Strip 60 LED/Metre - 1m Black (£11.40)
 - Adafruit I2S 3W Class D Amplifier - MAX98357A (£5.70)
 - 40mm Speaker - 4 Ohm 3 Watt with wires (£4.00)
 - Mini Basic PIR Sensor - BL412 (£1.90)
 - 575-Piece Ultimate Resistor Kit (£6.00)
-- Shipping: £3.90
+- Shipping: ~£4
+
+**Power Requirements**:
+- 5V 2.5A USB power supply (micro USB)
+- Higher current than ESP32-S3 but readily available
 
 ### System Integration
 ```
 ┌─────────────────────────────────────────┐
-│           ESP32-S3 Core System          │
+│        Raspberry Pi Zero 2 W            │
+│         (Linux + Python)                │
 ├─────────────────────────────────────────┤
-│  • AI Behavioral Recognition           │
-│  • Text-to-Speech Processing           │
-│  • LED Animation Control               │
+│  • TensorFlow/OpenCV/MediaPipe         │
+│  • Python ML Behavioral Recognition    │
+│  • Text-to-Speech (pyttsx3/espeak)     │
+│  • LED Animation Control (rpi_ws281x)  │
 │  • Sensor Data Fusion                  │
 └─────────────────┬───────────────────────┘
                   │
@@ -74,8 +89,9 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
 │Camera │    │ Audio  │    │  LEDs  │
 │Vision │    │ Output │    │Display │
 │       │    │        │    │        │
-│OV2640 │    │MAX98357│    │WS2812B │
-│ 2MP   │    │+ Spkr  │    │60 LEDs │
+│Pi Cam │    │MAX98357│    │WS2812B │
+│5-8 MP │    │+ Spkr  │    │60 LEDs │
+│ (CSI) │    │ (I2S)  │    │(GPIO18)│
 └───────┘    └────────┘    └────────┘
 ```
 
@@ -95,28 +111,30 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
 
 ## 🚀 Development Roadmap
 
-### Phase 1: Hardware Setup & Basic Testing (Week 1)
-- **Component Integration**: Wire all systems on breadboard
-- **Individual System Tests**: Verify camera, LEDs, audio independently
-- **Power Distribution**: Ensure stable 5V/3.3V supply to all components
-- **Basic Connectivity**: Arduino IDE setup and ESP32-S3 programming environment
+### Phase 1: Pi Setup & Basic Testing (Week 1)
+- **OS Installation**: Flash Raspberry Pi OS Lite to SD card
+- **System Configuration**: Enable camera, I2S audio, configure GPIO
+- **Python Environment**: Set up virtual environment with required packages
+- **Individual System Tests**: Verify camera, LEDs, audio independently via Python scripts
+- **Remote Access**: Configure SSH and (optionally) VNC for headless development
 
 ### Phase 2: Software Foundation (Week 2)
-- **LED Animation System**: Implement mood-based color patterns and expressions
-- **Audio Output**: Basic text-to-speech with personality variations
-- **Camera Integration**: Image capture and basic computer vision setup
-- **Sensor Fusion**: Combine PIR sensor with camera-based detection
+- **LED Animation System**: Implement mood-based color patterns using rpi_ws281x library
+- **Audio Output**: Configure I2S audio and text-to-speech with pyttsx3 or espeak
+- **Camera Integration**: OpenCV/Picamera2 setup for image capture and processing
+- **Sensor Fusion**: Combine PIR sensor (RPi.GPIO) with camera-based detection
 
 ### Phase 3: AI Implementation (Week 3)
-- **Behavioral Recognition Models**: Deploy TensorFlow Lite for activity detection
-- **Learning Algorithm**: Track patterns and adapt reminder timing
+- **Behavioral Recognition Models**: Deploy TensorFlow Lite or MediaPipe for activity detection
+- **Learning Algorithm**: Track patterns and adapt reminder timing with Python ML
 - **Personality Engine**: Implement mood states and context-aware responses
 - **Health Monitoring**: Activity tracking with gentle reminder system
 
 ### Phase 4: Refinement & Enclosure (Week 4-5)
 - **User Testing**: Fine-tune AI sensitivity for specific workspace
 - **Response Optimization**: Refine speech patterns and visual expressions
-- **Enclosure Design**: 3D printable desktop housing with professional appearance
+- **Enclosure Design**: 3D printable desktop housing accommodating Pi Zero 2 W form factor
+- **Service Configuration**: Set up systemd service for auto-start on boot
 - **Final Integration**: Move from breadboard to permanent assembly
 
 ## 📝 Development Guidelines
@@ -124,31 +142,47 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
 ### Code Organization
 ```
 pixel-plant/
-├── firmware/                 # ESP32-S3 Arduino code
-│   ├── src/
-│   │   ├── main.cpp         # Main application loop
-│   │   ├── ai/              # Behavioral recognition & learning
-│   │   ├── personality/     # Mood system & response generation
-│   │   ├── hardware/        # Hardware abstraction layer
-│   │   └── utils/           # Helper functions
-│   └── libraries/           # Custom libraries
+├── src/                      # Python application code
+│   ├── main.py              # Main application entry point
+│   ├── ai/                  # Behavioral recognition & learning
+│   │   ├── behavior_monitor.py
+│   │   ├── posture_detector.py
+│   │   └── pattern_learner.py
+│   ├── personality/         # Mood system & response generation
+│   │   ├── personality_engine.py
+│   │   └── messages.py
+│   ├── hardware/            # Hardware abstraction layer
+│   │   ├── camera.py
+│   │   ├── led_controller.py
+│   │   ├── audio.py
+│   │   └── pir_sensor.py
+│   └── utils/               # Helper functions
+├── tests/                   # Unit and integration tests
+├── config/                  # Configuration files
+│   └── config.yaml          # System configuration
+├── models/                  # Pre-trained ML models
+├── scripts/                 # Setup and utility scripts
+│   ├── setup.sh            # Initial Pi setup script
+│   └── install_deps.sh     # Dependency installation
 ├── hardware/                # Wiring diagrams & schematics
 ├── enclosure/              # 3D printing files & assembly guides
 ├── docs/                   # Technical documentation & build guides
 ├── examples/               # Basic test code & demos
-└── tools/                  # Development utilities
+└── requirements.txt        # Python dependencies
 ```
 
 ### Programming Approach
-- **Arduino IDE Compatible**: Use familiar development environment
+- **Python 3.9+**: Modern Python with full ML ecosystem access
 - **Modular Design**: Separate AI, personality, and hardware layers
 - **Privacy-First**: All processing on-device, minimal cloud dependency
 - **Open Source**: MIT license for community contributions and learning
+- **Systemd Service**: Auto-start on boot for reliable operation
 
 ### AI Framework Integration
-- **TensorFlow Lite Micro**: For on-device behavioral recognition
-- **EdgeImpulse**: Model training and deployment pipeline
-- **ESP-WHO Framework**: Espressif's AI vision toolkit for face detection
+- **TensorFlow Lite**: Optimized for ARM processors, excellent pose detection
+- **MediaPipe**: Google's ML framework for pose estimation and face detection
+- **OpenCV**: Computer vision preprocessing and image analysis
+- **Picamera2**: Native Pi camera interface with hardware acceleration
 - **Custom Models**: Tailored activity recognition for desktop environments
 
 ## 🎨 Personality Design Philosophy
@@ -176,22 +210,31 @@ Drawing from the book's themes, the pixel plant should embody:
 ## 🔬 Technical Specifications
 
 ### Performance Requirements
-- **Real-time Operation**: <100ms response time for behavioral changes
-- **Battery Efficiency**: Optional battery backup for 6+ hour operation
-- **Memory Management**: Efficient use of 8MB PSRAM for AI models
-- **Thermal Management**: Stable operation in typical office environments
+- **Real-time Operation**: <200ms response time for behavioral changes
+- **Frame Rate**: 15-25 FPS for pose detection (vs 2-5 FPS on Pi Zero 1)
+- **Boot Time**: ~20-30 seconds to operational (trade-off for Linux capabilities)
+- **Memory Usage**: Efficient ML model loading within 512MB RAM
+- **Thermal Management**: Stable operation in typical office environments (may benefit from small heatsink)
+
+### Power Specifications
+- **Idle**: ~120mA @ 5V
+- **Active (AI processing)**: ~350mA @ 5V
+- **Recommended Supply**: 5V 2.5A (official Pi power supply recommended)
+- **Battery Backup**: More challenging than ESP32, requires larger capacity (~10000mAh for 6+ hours)
 
 ### Connectivity Features
-- **WiFi Integration**: Over-the-air updates and cloud model deployment
-- **Local Processing**: Core functionality works offline
-- **External Antenna**: Reliable connection for future expansions
-- **I2S Audio**: High-quality digital audio output
+- **Built-in WiFi**: 2.4GHz 802.11 b/g/n for OTA updates and remote access
+- **Bluetooth 4.2**: For future wireless sensor integration
+- **Local Processing**: Core functionality works completely offline
+- **SSH Access**: Remote development and monitoring
+- **I2S Audio**: High-quality digital audio output via GPIO
 
 ### Expansion Possibilities
-- **Voice Interaction**: Wake word detection and voice commands
-- **Multiple Users**: Face recognition for personalized responses  
-- **Environmental Sensing**: Temperature, humidity, air quality monitoring
-- **Integration APIs**: Connect with smart home systems or health tracking apps
+- **Voice Interaction**: Wake word detection using PicoVoice or Snowboy
+- **Multiple Users**: Face recognition for personalized responses (MediaPipe FaceMesh)
+- **Environmental Sensing**: I2C/SPI sensors for temperature, humidity, air quality
+- **Integration APIs**: Flask/FastAPI web service for smart home integration
+- **Home Assistant**: Native integration possibilities
 
 ## 🌍 Community & Open Source Goals
 
