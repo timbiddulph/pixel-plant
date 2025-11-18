@@ -16,7 +16,7 @@
 ### Display & Visual Output
 | Component | Description | Quantity | Price (£) | Supplier | Notes |
 |-----------|-------------|----------|-----------|----------|-------|
-| Flexible RGB LED Strip | WS2812B 60 LED/m, 1m Black | 1 | £11.40 | Various | 5V addressable LEDs, connects to GPIO 18 |
+| 8x8 LED Matrix | WS2812B RGB LED Matrix (64 LEDs) | 1 | £8-12 | Various | 5V addressable matrix, connects to GPIO 18, enables 2D personality expressions |
 
 ### Audio System
 | Component | Description | Quantity | Price (£) | Supplier | Notes |
@@ -34,8 +34,8 @@
 |-----------|-------------|----------|-----------|----------|-------|
 | Resistor Kit | 575-piece assorted resistors | 1 | £6.00 | Various | 1/4W through-hole |
 
-### **Total Core Cost: £58-71 + ~£4 shipping = £62-75**
-*(Price varies based on camera choice: budget OV5647 ~£62, official Camera Module 2 ~£75)*
+### **Total Core Cost: £55-68 + ~£4 shipping = £59-72**
+*(Price varies based on camera choice: budget OV5647 ~£59, official Camera Module 2 ~£72)*
 
 ## Optional Components
 
@@ -127,9 +127,9 @@
 
 ## Cost Optimization Tips
 
-### Budget Build (~£55)
+### Budget Build (~£52)
 - Use generic OV5647 camera module instead of official Camera Module 2
-- Use generic LED strips instead of brand name
+- Use generic 8x8 WS2812B matrix instead of Adafruit NeoPixel
 - Source resistors locally or use salvaged components
 - 3D print enclosure at local makerspace
 - Use breadboard for initial prototyping
@@ -165,7 +165,7 @@
 ### Substitution Guidelines
 - **Raspberry Pi Zero 2 W**: Pi 3A+ works but larger/more expensive; Pi Zero 1 NOT recommended (too slow for AI)
 - **Pi Camera**: Any CSI-compatible camera; OV5647 and IMX219 sensors are well-supported
-- **WS2812B**: Any 5V addressable LED strip (SK6812, APA102)
+- **8x8 WS2812B Matrix**: Any 5V addressable LED matrix (Adafruit NeoPixel 8x8, generic WS2812B matrix, SK6812 matrix)
 - **MAX98357A**: Other I2S amplifiers or PWM audio via GPIO (lower quality)
 - **40mm Speaker**: 8 Ohm speakers with proper power rating (adjust amp settings)
 

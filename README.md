@@ -25,14 +25,14 @@ An AI-powered desktop companion inspired by Becky Chambers' novel "The Long Way 
 - Raspberry Pi Zero 2 W
 - Pi Camera Module (Official Camera Module 2 or compatible OV5647)
 - 32GB microSD Card (Class 10)
-- Flexible RGB LED Strip (60 LED/m, WS2812B)
+- 8x8 WS2812B RGB LED Matrix (64 individually addressable LEDs)
 - Adafruit I2S Audio Amplifier (MAX98357A)
 - 40mm Speaker (4 Ohm, 3W)
 - Mini PIR Sensor (BL412)
 - 5V 2.5A Power Supply (micro USB)
 - Basic resistors and wiring components
 
-**Total Cost**: ~£58-71 depending on camera choice (see [Bill of Materials](docs/hardware/BOM.md))
+**Total Cost**: ~£55-68 depending on camera choice (see [Bill of Materials](docs/hardware/BOM.md))
 
 ### Software Setup
 

@@ -102,13 +102,14 @@ The system includes 50+ unique caring messages across categories:
 - **Encouragement**: "Aw, it's not so bad! Give yourself a hug! 🤗"
 - **Celebration**: "Wonderful! You took care of yourself! I'm so proud! 🎉"
 
-### 🌈 **Mood-Based LED Animations**
-- **Happy**: Gentle green breathing
-- **Caring**: Warm yellow pulsing  
-- **Concerned**: Orange attention waves
-- **Worried**: Red urgent (but gentle) patterns
-- **Sleeping**: Blue peaceful breathing
-- **Celebrating**: Rainbow joy animations
+### 🌈 **Mood-Based LED Animations (8x8 Matrix)**
+- **Happy**: Smiling face with gentle green breathing
+- **Caring**: Thoughtful expression with warm yellow pulsing
+- **Concerned**: Concerned face with orange attention waves
+- **Worried**: Worried face with red urgent (but gentle) patterns
+- **Sleeping**: Peaceful closed eyes with blue slow breathing
+- **Celebrating**: Cheerful face with rainbow joy animations
+- **Icons**: Hearts, checkmarks, and symbols for different messages
 
 ### 🧠 **Learning & Adaptation**
 - Pattern recognition for user habits
@@ -153,11 +154,11 @@ The system includes 50+ unique caring messages across categories:
    - First boot and SSH connection
    - Enable camera interface via raspi-config
 
-2. **LED Strip Test** (45 minutes)
-   - Wire WS2812B strip to GPIO 18 (PWM)
-   - Run `python examples/test_leds.py`
-   - Verify all 60 LEDs function
-   - Test color accuracy and animations
+2. **LED Matrix Test** (45 minutes)
+   - Wire 8x8 WS2812B matrix to GPIO 18 (PWM)
+   - Run `python examples/test_matrix.py`
+   - Verify all 64 LEDs function
+   - Test color accuracy, grid mapping, and animations
 
 3. **Audio System Test** (45 minutes)
    - Configure I2S audio overlay in /boot/config.txt
@@ -195,7 +196,7 @@ The system includes 50+ unique caring messages across categories:
 ### Hardware Configuration
 - **Board**: Raspberry Pi Zero 2 W (quad-core ARM Cortex-A53 @ 1GHz)
 - **Camera**: Pi Camera Module (5-8MP via CSI interface)
-- **LEDs**: WS2812B strip (60 LEDs) on GPIO 18 (PWM)
+- **LEDs**: WS2812B 8x8 matrix (64 LEDs) on GPIO 18 (PWM) - enables facial expressions and 2D patterns
 - **Audio**: MAX98357A I2S amplifier on GPIO 18/19/21
 - **Motion**: PIR sensor on GPIO (configurable)
 - **Storage**: 32GB microSD Card (Class 10)
