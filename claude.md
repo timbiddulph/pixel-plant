@@ -55,11 +55,11 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
 - **Recommended**: Generic OV5647 for budget, or Camera Module 2 for best quality
 
 ### Component Breakdown
-**Core Components** (~£58-71 total):
+**Core Components** (~£55-68 total):
 - Raspberry Pi Zero 2 W (£15)
 - Pi Camera Module (£10-25 depending on option)
 - 32GB microSD Card Class 10 (£8)
-- Flexible RGB LED Strip 60 LED/Metre - 1m Black (£11.40)
+- 8x8 WS2812B RGB LED Matrix (£8-12)
 - Adafruit I2S 3W Class D Amplifier - MAX98357A (£5.70)
 - 40mm Speaker - 4 Ohm 3 Watt with wires (£4.00)
 - Mini Basic PIR Sensor - BL412 (£1.90)
@@ -86,11 +86,11 @@ The pixel plant appears as a key character development tool in Chambers' novel, 
     ┌─────────────┼─────────────┐
     │             │             │
 ┌───▼───┐    ┌────▼───┐    ┌───▼────┐
-│Camera │    │ Audio  │    │  LEDs  │
+│Camera │    │ Audio  │    │ LEDs   │
 │Vision │    │ Output │    │Display │
 │       │    │        │    │        │
 │Pi Cam │    │MAX98357│    │WS2812B │
-│5-8 MP │    │+ Spkr  │    │60 LEDs │
+│5-8 MP │    │+ Spkr  │    │8x8 Grid│
 │ (CSI) │    │ (I2S)  │    │(GPIO18)│
 └───────┘    └────────┘    └────────┘
 ```
@@ -200,12 +200,14 @@ Drawing from the book's themes, the pixel plant should embody:
 - **Celebratory**: Acknowledges good habits and healthy choices
 - **Respectfully Persistent**: Increases concern appropriately with extended inactivity
 
-### Visual Personality (LED Expressions)
-- **Happy State**: Gentle green/blue breathing effects
-- **Concerned State**: Warm yellow pulsing
-- **Worried State**: Urgent orange/red animations  
-- **Sleeping State**: Dim blue/purple slow breathing
-- **Celebration**: Bright, cheerful color cycling
+### Visual Personality (8x8 LED Matrix Expressions)
+- **Happy State**: Smiling face with gentle green/blue breathing
+- **Concerned State**: Thoughtful expression with warm yellow pulsing
+- **Worried State**: Concerned face with urgent orange/red animations
+- **Sleeping State**: Peaceful closed eyes with dim blue/purple slow breathing
+- **Celebration**: Cheerful face with bright, happy color cycling
+- **Simple Icons**: Hearts, check marks, exclamation points for different messages
+- **Pixel Art Animations**: Smooth transitions between emotional states
 
 ## 🔬 Technical Specifications
 

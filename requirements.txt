@@ -1,0 +1,34 @@
+# Pixel Plant AI Companion - Python Dependencies
+
+# Configuration
+PyYAML>=6.0
+
+# Hardware - LED Matrix
+rpi-ws281x>=5.0.0; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Hardware - Camera
+picamera2>=0.3.12; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Hardware - GPIO
+RPi.GPIO>=0.7.1; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Hardware - Audio (Text-to-Speech)
+pyttsx3>=2.90
+
+# AI/ML - Pose Detection
+tensorflow-lite>=2.14.0; platform_machine=="armv7l" or platform_machine=="aarch64"
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Computer Vision
+mediapipe>=0.10.0; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Data Processing
+python-dateutil>=2.8.2
+
+# Development/Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Logging and Monitoring
+coloredlogs>=15.0.1

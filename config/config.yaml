@@ -1,0 +1,76 @@
+# Pixel Plant Configuration
+# Runtime settings for the AI companion
+
+# Hardware pin assignments (BCM numbering)
+hardware:
+  led_matrix:
+    gpio_pin: 18  # PWM pin for WS2812B
+    width: 8
+    height: 8
+    brightness: 128  # 0-255, start conservative to save power
+
+  audio:
+    i2s_pins:
+      bclk: 18  # I2S bit clock
+      lrclk: 19  # I2S left/right clock
+      data: 21  # I2S data
+    volume: 70  # 0-100
+
+  camera:
+    resolution: [640, 480]  # Start lower for performance
+    framerate: 15  # Target FPS for pose detection
+    rotation: 0  # 0, 90, 180, 270
+
+  pir_sensor:
+    gpio_pin: 17  # Motion detection pin
+    enabled: true
+
+# Behavioral monitoring settings
+behavior:
+  sitting_threshold_minutes: 45  # Remind to move after this long
+  hydration_interval_minutes: 60  # Remind to drink water
+  inactivity_sleep_minutes: 30  # Go to sleep mode if no motion
+
+  # Learning system
+  learning_enabled: true
+  pattern_window_days: 7  # Days of history to analyze
+
+# Personality settings
+personality:
+  caring_level: 5  # 1-10, how frequently to check in
+  voice_enabled: true
+  voice_rate: 150  # Words per minute (default ~150)
+  voice_volume: 0.7  # 0.0-1.0
+
+  # Response style
+  escalation_enabled: true  # Gradual concern increase
+  celebration_enabled: true  # Celebrate good habits
+
+# LED animation preferences
+animations:
+  transition_style: 'cascade'  # wave, cascade, synchronized
+  mood_update_seconds: 5  # How often to refresh mood display
+  breathing_speed: 2.0  # Seconds per breath cycle
+
+# AI/ML settings
+ai:
+  pose_detection_enabled: true
+  confidence_threshold: 0.7  # Minimum confidence for pose detection
+  model_path: 'models/pose_detection_lite.tflite'
+
+  # Privacy settings
+  save_images: false  # Never save camera images
+  save_analytics_only: true  # Only save behavioral patterns
+
+# System settings
+system:
+  log_level: 'INFO'  # DEBUG, INFO, WARNING, ERROR
+  log_file: '/var/log/pixel-plant.log'
+  data_directory: '/home/pi/.pixel-plant'
+  auto_start: true
+
+# Development/debugging
+debug:
+  simulate_hardware: false  # Use mock hardware for testing
+  console_visualization: false  # Show LED patterns in terminal
+  performance_monitoring: true

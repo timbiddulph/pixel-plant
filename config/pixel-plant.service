@@ -1,0 +1,17 @@
+[Unit]
+Description=Pixel Plant AI Companion
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/pixel-plant
+Environment="PATH=/home/pi/pixel-plant/venv/bin"
+ExecStart=/home/pi/pixel-plant/venv/bin/python /home/pi/pixel-plant/src/main.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
