@@ -29,11 +29,28 @@ hardware:
 behavior:
   sitting_threshold_minutes: 45  # Remind to move after this long
   hydration_interval_minutes: 60  # Remind to drink water
-  inactivity_sleep_minutes: 30  # Go to sleep mode if no motion
+  inactivity_sleep_minutes: 30  # Go to sleep mode if no motion (deprecated, see power_management)
 
   # Learning system
   learning_enabled: true
   pattern_window_days: 7  # Days of history to analyze
+
+# Power management (for always-on operation)
+power_management:
+  enabled: true
+
+  # Progressive sleep timeouts (minutes of inactivity)
+  idle_timeout_minutes: 5        # Reduce activity, still monitoring
+  light_sleep_timeout_minutes: 15  # LED off, camera off, PIR only
+  deep_sleep_timeout_minutes: 60   # Minimal power, PIR wake only
+
+  # PIR wake settings
+  pir_wake_enabled: true
+  pir_check_interval_seconds: 1.0  # How often to check PIR in sleep
+
+  # State persistence
+  auto_save_interval_seconds: 60   # Save state every 60 seconds
+  save_on_state_change: true       # Immediate save on important changes
 
 # Personality settings
 personality:
